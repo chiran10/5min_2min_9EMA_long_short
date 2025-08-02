@@ -1,3 +1,8 @@
+//This Pine Script v6 strategy named "5min_2min_9EMA_long_short" is designed for TradingView to generate long and short trade entries based on 
+//the interaction of price with specific exponential moving averages (EMAs) and VWAP during a defined session window in the New York time zone. 
+//Additionally, it tracks and alerts on daily price percentage gains crossing key thresholds relative to the previous day's close.
+
+
 //@version=6
 strategy("5min_2min_9EMA_long_short", overlay=true)
 
