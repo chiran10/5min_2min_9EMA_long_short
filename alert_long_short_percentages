@@ -50,9 +50,9 @@ priceBelowEMA = close < ema9_2m and close < ema9_5m
 // Entry Long (ENTER regardless of current position)
 if inSession() and priceAboveEMA
     strategy.entry("Long", strategy.long)
-    alert("LONG ENTRY: Price above 9 EMA on 2m & 5m and above VWAP")
+    alert("LONG ENTRY: Price > 9 EMA on 2m,5m,VWAP")
 
 // Entry Short (ENTER regardless of current position)
 if inSession() and priceBelowEMA
     strategy.entry("Short", strategy.short)
-    alert("SHORT ENTRY: Price below 9 EMA on 2m & 5m")
+    alert("SHORT ENTRY: Price < 9 EMA on 2m,5m")
