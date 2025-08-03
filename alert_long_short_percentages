@@ -18,22 +18,18 @@ inSession() =>
     m = minute(time, "America/New_York")
     (h > startHour or (h == startHour and m >= startMinute)) and (h < endHour or (h == endHour and m < endMinute))
 
-// 9 EMA on 2-minute timeframe (current chart)
-ema9_2m = ta.ema(close, 9)
-
-// 9 EMA on 5-minute timeframe
+// 9 EMA on 2-minute and 5-minute timeframes
+ema9_2m = request.security(syminfo.tickerid, "2", ta.ema(close, 9))
 ema9_5m = request.security(syminfo.tickerid, "5", ta.ema(close, 9))
 
-// VWAP on current chart (2-minute)
+// VWAP (current chart)
 vwapValue = ta.vwap(close)
 
-// Calculate previous day's close
-prevDayClose = request.security(syminfo.tickerid, "D", close[1], lookahead = barmerge.lookahead_on)
-
-// Calculate price change % from previous day close
+// Previous day's close (correct: close[1] on daily)
+prevDayClose = request.security(syminfo.tickerid, "D", close[1], lookahead=barmerge.lookahead_on)
 priceChangePercent = 100 * (close - prevDayClose) / prevDayClose
 
-// Define thresholds
+// Thresholds for alerting
 thresholds = array.new_float()
 array.push(thresholds, 50)
 array.push(thresholds, 100)
@@ -42,16 +38,10 @@ array.push(thresholds, 150)
 array.push(thresholds, 175)
 array.push(thresholds, 200)
 
-// Track which thresholds have been alerted
-var alertedThresholds = array.new_bool(size = array.size(thresholds), initial_value = false)
-
-// Check and alert when price change crosses above thresholds
 for i = 0 to array.size(thresholds) - 1
     threshold = array.get(thresholds, i)
-    alerted = array.get(alertedThresholds, i)
-    if priceChangePercent > threshold and not alerted
-        alert("PRICE GAIN ABOVE " + str.tostring(threshold) + "%: Current gain=" + str.tostring(priceChangePercent, "#.##") + "%", alert.freq_once_per_bar_close)
-        array.set(alertedThresholds, i, true)
+    if priceChangePercent > threshold
+        alert("PRICE GAIN ABOVE " + str.tostring(threshold) + "%: Current gain=" + str.tostring(priceChangePercent, "#.##") + "%")
 
 // Conditions
 priceAboveEMA = close > ema9_2m and close > ema9_5m and close > vwapValue
@@ -61,10 +51,10 @@ priceBelowEMA = close < ema9_2m and close < ema9_5m
 if inSession() and priceAboveEMA
     if strategy.position_size <= 0
         strategy.entry("Long", strategy.long)
-        alert("LONG ENTRY: Price above 9 EMA on 2m & 5m and above VWAP", alert.freq_once_per_bar_close)
+        alert("LONG ENTRY: Price above 9 EMA on 2m & 5m and above VWAP")
 
 // Entry Short
 if inSession() and priceBelowEMA
     if strategy.position_size >= 0
         strategy.entry("Short", strategy.short)
-        alert("SHORT ENTRY: Price below 9 EMA on 2m & 5m", alert.freq_once_per_bar_close)
+        alert("SHORT ENTRY: Price below 9 EMA on 2m & 5m")
