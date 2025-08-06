@@ -1,0 +1,56 @@
+//This Pine Script v6 strategy named "alert_2min_9ema_pin_bar_pullback" is designed for TradingView to generate long trade entries based on 
+//Condition: price touched or crossed down 2min 9EMA during the bar and closed above 9EMA  and price closed above VWAP
+
+
+
+
+
+//@version=6
+strategy("2min 9 ema pullbacks", overlay=true, default_qty_type=strategy.cash, default_qty_value=1000)
+
+// Session time in EST (New York)
+startHour = 5
+startMinute = 30
+endHour = 12
+endMinute = 0
+
+inSession() =>
+    h = hour(time, "America/New_York")
+    m = minute(time, "America/New_York")
+    (h > startHour or (h == startHour and m >= startMinute)) and (h < endHour or (h == endHour and m < endMinute))
+
+// 9 EMA on 2-minute chart
+ema9 = ta.ema(close, 9)
+
+// VWAP for current chart
+vwapValue = ta.vwap(close)
+
+// Condition: price touched or crossed down EMA during the bar and closed above EMA
+crossedDownOrTouched = low <= ema9 and high >= ema9  // candle touched 9 EMA
+closeAboveEMA = close > ema9
+
+// Only enter long if price also closes above VWAP
+priceAboveVWAP = close > vwapValue
+
+longCondition = inSession() and crossedDownOrTouched and closeAboveEMA and priceAboveVWAP
+
+// Enter long if condition met and no open position
+if (longCondition and strategy.position_size == 0)
+    strategy.entry("Long", strategy.long)
+    alert("LONG ENTRY: Candle touched or crossed down 9 EMA, closed above 9 EMA, and price above VWAP")
+
+// Take profit at 20% above entry price, stop loss at 10% below 
+if (strategy.position_size > 0)
+    takeProfitPrice = strategy.position_avg_price * 1.20
+    stopLossPrice = strategy.position_avg_price * 0.90
+    strategy.exit("TP_SL", from_entry="Long", stop=stopLossPrice, limit=takeProfitPrice)
+
+
+
+// Visual marker for entry condition
+plotshape(longCondition and strategy.position_size == 0, title="Long Entry Signal", location=location.belowbar, color=color.green, style=shape.triangleup, size=size.small)
+
+
+
+
+
