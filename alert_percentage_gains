@@ -1,0 +1,35 @@
+//@version=6
+indicator("percent gain alerts", overlay=true)
+
+// Get previous day's close
+prev_close = request.security(syminfo.tickerid, "D", close[1])
+
+// Calculate percent change from previous close
+percent_change = (close - prev_close) / prev_close * 100
+
+// Alert trigger conditions
+alert_50 = percent_change >= 50
+alert_75 = percent_change >= 75
+alert_100 = percent_change >= 100
+alert_150 = percent_change >= 150
+alert_200 = percent_change >= 200
+
+// Alert messages triggered once per bar when conditions first become true
+if alert_50 and not alert_50[1]
+    alert("Price is up 50% or more from previous day's close!", alert.freq_all)
+if alert_75 and not alert_75[1]
+    alert("Price is up 75% or more from previous day's close!", alert.freq_all)
+if alert_100 and not alert_100[1]
+    alert("Price is up 100% or more from previous day's close!", alert.freq_all)
+if alert_150 and not alert_150[1]
+    alert("Price is up 150% or more from previous day's close!", alert.freq_all)
+if alert_200 and not alert_200[1]
+    alert("Price is up 200% or more from previous day's close!", alert.freq_all)
+
+
+
+// Optional: Label showing current percent change on the last bar
+//var label lbl = na
+//if bar_index == ta.highest(bar_index, 1)
+    //label.delete(lbl)
+    //lbl := label.new(bar_index, close, text=str.format("{0,number,#.##}%", percent_change), color=color.new(color.blue, 80), style=label.style_label_down, textcolor=color.white)
